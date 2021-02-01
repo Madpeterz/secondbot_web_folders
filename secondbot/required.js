@@ -29,13 +29,11 @@ function Now() {
 
 function getCallBotWithToken(command, callback) {
     var action = command + "/" + webUItoken;
-    console.log(action);
     callBot(action, "get", {}, callback);
 }
 
 function postCallBotWithToken(command, args, callback) {
     var action = command + "/" + webUItoken;
-    console.log(action);
     callBot(action, "post", args, callback);
 }
 
@@ -84,6 +82,7 @@ function BasicChecks(value, sourcename) {
                 return true;
             }
             addToreplyLog('Request: ' + sourcename + ' ' + value);
+            FetchToken();
             return false;
         }
         addToreplyLog('Request: ' + sourcename + ' ' + value);

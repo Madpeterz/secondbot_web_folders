@@ -1,5 +1,5 @@
 function StartBotTimers() {
-    setInterval(getLocalchatHistory, 750);
+    setInterval(getLocalchatHistory, 1250);
     setInterval(updateBadges, 3000);
 }
 
