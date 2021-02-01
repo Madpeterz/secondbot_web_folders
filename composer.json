@@ -1,0 +1,23 @@
+{
+    "name": "madpeterz/secondbot_web_ui",
+    "description": "A bad web UI",
+    "type": "project",
+    "config": {
+        "platform": {
+            "php": "7.4"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "slevomat/coding-standard": "^6.4",
+        "squizlabs/php_codesniffer": "*"
+    },
+    "authors": [
+        {
+            "name": "Madpeter",
+            "email": "madpeter@gmail.com"
+        }
+    ]
+}
