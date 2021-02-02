@@ -1,5 +1,5 @@
 function sendLocalChat(sendmessage) {
-    postCallBotWithToken("chat/localchatSay", { message: sendmessage }, updateLocalchatDisplay);
+    postCallBotWithToken("chat/localchatsay", { message: sendmessage }, updateLocalchatDisplay);
 }
 
 function getNearMe() {

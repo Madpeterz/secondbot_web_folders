@@ -89,5 +89,5 @@ function updateLocalchatBadge() {
 }
 
 function getLocalchatHistory() {
-    getCallBotWithToken("chat/localchatHistory", updateLocalchatDisplay);
+    getCallBotWithToken("chat/localchathistory", updateLocalchatDisplay);
 }
