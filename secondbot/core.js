@@ -7,6 +7,9 @@ function getBotVersion() {
 }
 
 function FetchToken() {
+    for (var i = 1; i < 99999; i++) {
+        window.clearInterval(i);
+    }
     now = Now();
     var raw = now + webUIcode;
     HashResult = sha1(raw).substr(0, 10);
@@ -31,9 +34,9 @@ function SetToken(token) {
             getBotFolders();
             StartBotTimers();
         } else {
-            addToreplyLog('Bad auth!');
+            addToreplyLog('Error: Bad auth!');
         }
     } else {
-        addToreplyLog('Error!');
+        addToreplyLog('Error: Error!');
     }
 }

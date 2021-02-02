@@ -1,0 +1,139 @@
+<div class="modal fade" id="imwindow" tabindex="-1" role="dialog" aria-labelledby="newimwindow" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newimwindow">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="newim-recipient" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" id="newim-recipient">
+                    </div>
+                    <div class="form-group">
+                        <label for="newim-text" class="col-form-label">Message:</label>
+                        <input type="text" class="form-control" id="newim-text">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="sendbutton">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="senditemwindow" tabindex="-1" role="dialog" aria-labelledby="itemwindow" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemwindow">Send item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="senditem-recipient" class="col-form-label">Recipient:</label>
+                        <input type="text" class="form-control" id="senditem-recipient">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Item:</label>
+                        <span id="senditem-itemname"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="givebutton">Give</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="renamewindow" tabindex="-1" role="dialog" aria-labelledby="itemrenamewindow"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemrenamewindow">Rename item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="rename-newname" class="col-form-label">New name:</label>
+                        <input type="text" class="form-control" id="rename-newname" value="">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="rename-button">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="deleteitemwindow" tabindex="-1" role="dialog" aria-labelledby="deletewindow"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletewindow">Delete item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Item:</label>
+                        <span id="deleteitem-itemname"></span>
+                    </div>
+                    <div class="form-group">
+                        <br />
+                        <p>
+                            Are you sure you wish to delete this?
+                        </p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-danger" id="delete-button">Delete</button>
+                <button type="button" class="btn btn-lg btn-success" data-dismiss="modal">Keep</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="previewwindow" tabindex="-1" role="dialog" aria-labelledby="preview" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="preview">Texture preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <center>
+                    <img id="previewtexturehere" src="" width="412px" height="412px" />
+                </center>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

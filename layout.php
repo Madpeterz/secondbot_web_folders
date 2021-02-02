@@ -7,10 +7,14 @@
                 <a class="nav-link" data-tabname="localchat" id="v-pills-localchat-tab" data-toggle="pill" 
                 href="#localchat" role="tab" aria-controls="v-pills-localchat" aria-selected="false">Localchat 
                     <span id="localchat-badge" class="d-none badge badge-danger">0</span></a>
+                <a class="nav-link" data-tabname="friends" id="v-pills-friends-tab" data-toggle="pill" 
+                href="#friends" role="tab" aria-controls="v-pills-friends" aria-selected="false">Friends</a>
                 <a class="nav-link" data-tabname="ims" id="v-pills-ims-tab" data-toggle="pill" href="#ims" role="tab"
-                    aria-controls="v-pills-ims" aria-selected="false">Ims</a>
+                    aria-controls="v-pills-ims" aria-selected="false">Ims 
+                    <span id="imchat-badge" class="d-none badge badge-danger">#</span></a>
                 <a class="nav-link" data-tabname="groups" id="v-pills-groups-tab" data-toggle="pill" 
-                href="#groups" role="tab" aria-controls="v-pills-groups" aria-selected="false">Groups</a>
+                href="#groups" role="tab" aria-controls="v-pills-groups" aria-selected="false">
+                Groups <span id="groupchat-badge" class="d-none badge badge-danger">#</span></a>
                 <a class="nav-link" data-tabname="inventory" id="v-pills-inventory-tab" data-toggle="pill" 
                 href="#inventory" role="tab" aria-controls="v-pills-inventory" aria-selected="false">Inventory</a>
             </div>
@@ -24,6 +28,8 @@
                 <?php include "pages/ims.html"; ?>
                 <?php include "pages/groups.html"; ?>
                 <?php include "pages/inventory.html"; ?>
+                <?php include "pages/friends.html"; ?>
+                <?php require "pages/modals.html"; ?>
             </div>
         </div>
     </div>

@@ -3,31 +3,120 @@ function getBotFolders() {
     getCallBotWithToken("inventory/folders", SetBotFolders);
 }
 
-function RefreshFolder(node) {
-    if (busy_with_folder == "") {
-        busy_with_folder = node.id;
-        getCallBotWithToken("inventory/contents/" + busy_with_folder, SetFolderContents);
+
+function getBotRealUUID(callback) {
+    if (ItemAPIBusy == false) {
+        ItemAPIBusy = true;
+        RealUUIDCallback = callback;
+        getCallBotWithToken("inventory/realuuid/" + ItemUUID, setBotRealUUID);
     }
 }
 
-function DeleteNode(node) {
-    console.log("Action DELETE for ");
+function setBotRealUUID(jsonRaw) {
+    if (BasicChecks(jsonRaw, "RealUUID") == true) {
+        if (jsonRaw != "Failed") {
+            addToreplyLog('UUID: ' + jsonRaw);
+            RealUUID = jsonRaw;
+            RealUUIDCallback();
+        }
+    }
+    ItemAPIBusy = false;
 }
 
-function RenameNode(node) {
-    console.log("Action RENAME for ");
+function RefreshFolder(node) {
+    if (ItemAPIBusy == false) {
+        ActiveNode = node;
+        ItemAPIBusy = true;
+        getCallBotWithToken("inventory/contents/" + ActiveNode.id, SetFolderContents);
+    }
+}
+
+function InventoryRemove() {
+    ItemAPIBusy = true;
+    getCallBotWithToken("inventory/delete/" + ItemUUID + "/" + ItemIsFolder, SetDeleteResult);
+}
+
+function InventoryRename() {
+    ItemAPIBusy = true;
+    postCallBotWithToken("inventory/rename/" + ItemUUID, { newname: $("#rename-newname").val() }, SetRenameResult);
+}
+
+function InventorySend() {
+    ItemAPIBusy = true;
+    getCallBotWithToken("inventory/send/" + ItemUUID + "/" + $("#senditem-recipient").val(), SetSendResult);
+}
+
+function SetRenameResult(jsonRaw) {
+    if (BasicChecks(jsonRaw, "InventoryRename") == true) {
+        if (jsonRaw == "True") {
+            var jstree = $("#jstree").jstree(true);
+            jstree.rename_node(ActiveNode, $("#rename-newname").val());
+        }
+    }
+    $("#senditem-recipient").val("");
+    ActiveNode = null;
+    ItemAPIBusy = false;
+}
+
+function SetSendResult(jsonRaw) {
+    if (BasicChecks(jsonRaw, "InventorySend") == true) {
+        addToreplyLog('Send inventory: ' + jsonRaw);
+    }
+    ActiveNode = null;
+    ItemAPIBusy = false;
+}
+
+function SetDeleteResult(jsonRaw) {
+    if (BasicChecks(jsonRaw, "InventoryDelete") == true) {
+        addToreplyLog('Delete inventory: ' + jsonRaw);
+        if (jsonRaw == "True") {
+            var jstree = $("#jstree").jstree(true);
+            jstree.delete_node(ActiveNode);
+        }
+    }
+    ActiveNode = null;
+    ItemAPIBusy = false;
+}
+
+function DeleteNode(node, isfolder) {
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = isfolder;
+        ActiveNode = node;
+        showDeleteModal();
+    }
+}
+
+function RenameNode(node, isfolder) {
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = isfolder;
+        ActiveNode = node;
+        showRenameModal();
+    }
 }
 
 function SendNode(node) {
-    console.log("Action SEND for ");
-}
-
-function EditNode(node) {
-    console.log("Action EDIT for ");
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = false;
+        ActiveNode = node;
+        showSendModal();
+    }
 }
 
 function PreviewNode(node) {
-    console.log("Action Preview for ");
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = false;
+        ActiveNode = node;
+        RealUUID = "";
+        showTexturePreview();
+    }
 }
 
 
@@ -40,19 +129,23 @@ function InventoryMenu(node) {
         },
         renameItem: {
             label: "Rename",
-            action: function () { RenameNode(node); }
+            action: function () { RenameNode(node, false); }
+        },
+        renameFolder: {
+            label: "Rename",
+            action: function () { RenameNode(node, true); }
         },
         deleteItem: {
             label: "Delete",
-            action: function () { DeleteNode(node); }
+            action: function () { DeleteNode(node, false); }
+        },
+        deleteFolder: {
+            label: "Delete",
+            action: function () { DeleteNode(node, true); }
         },
         SendItem: {
             label: "Send",
             action: function () { SendNode(node); }
-        },
-        EditItem: {
-            label: "Edit",
-            action: function () { EditNode(node); }
         },
         PreviewItem: {
             label: "Preview",
@@ -62,16 +155,9 @@ function InventoryMenu(node) {
 
     var nodeObj = $("#" + node.id);
     var IsFolder = false;
-    var IsEditable = false;
     var IsPreviewable = false;
     if (nodeObj.attr("type") == "Folder") {
         IsFolder = true;
-    }
-    if (nodeObj.attr("type") == "Notecard") {
-        IsEditable = true;
-    }
-    if (nodeObj.attr("type") == "LSL") {
-        IsEditable = true;
     }
     if (nodeObj.attr("type") == "Texture") {
         IsPreviewable = true;
@@ -79,18 +165,22 @@ function InventoryMenu(node) {
 
     if ((node.parent == "#") || (node.parent == RootFolderid)) {
         delete items.deleteItem;
+        delete items.deleteFolder;
         delete items.renameItem;
+        delete items.renameFolder;
     }
 
     if (IsFolder == true) {
+        delete items.deleteItem;
+        delete items.renameItem;
         delete items.SendItem;
-    }
-    if (IsFolder == false) {
+    } else {
+        delete items.deleteFolder;
+        delete items.renameFolder;
         delete items.refreshItem;
     }
-    if (IsEditable == false) {
-        delete items.EditItem;
-    }
+
+
     if (IsPreviewable == false) {
         delete items.PreviewItem;
     }
@@ -106,18 +196,21 @@ function SetFolderContents(jsonRaw) {
             var missingids = [];
             var missingobjects = [];
             var jstree = $("#jstree").jstree(true);
-            var children = jstree.get_node(busy_with_folder).children;
+            var children = jstree.get_node(ActiveNode).children;
+
             $.each(jsondata, function (i, item) {
-                if (missingids.includes(item.id) == false) {
-                    missingids.push(item.id);
-                    missingobjects.push(item);
+                if (children.includes(item.id) == false) {
+                    if (missingids.includes(item.id) == false) {
+                        missingids.push(item.id);
+                        missingobjects.push(item);
+                    }
                 }
             });
 
             $.each(missingobjects, function (i, item) {
-                if (item.id != busy_with_folder) {
+                if (item.id != ActiveNode.id) {
                     var typename = item.typename.replace("Inventory", "");
-                    jstree.create_node(busy_with_folder, {
+                    jstree.create_node(ActiveNode.id, {
                         "li_attr": { "type": typename },
                         "id": item.id,
                         "text": item.name,
@@ -127,17 +220,15 @@ function SetFolderContents(jsonRaw) {
                 }
             });
 
-            expandNode(busy_with_folder);
-
-            busy_with_folder = "";
-
+            expandNode(ActiveNode.id);
         }
         catch (err) {
             console.log(err);
-            busy_with_folder = "";
             addToreplyLog('Failed processing folder reply');
         }
     }
+    ActiveNode = "";
+    ItemAPIBusy = false;
 }
 
 
@@ -171,7 +262,8 @@ function SetBotFolders(jsonRaw) {
     if (BasicChecks(jsonRaw, "Folders") == true) {
         try {
             jsondata = JSON.parse(jsonRaw);
-            $('#jstree').html("");
+            $('#jstree').off('ready.jstree');
+            $('#inventory').html('<div id="jstree">Inventory not loaded</div>');
             $('#jstree')
                 .jstree({
                     "core": {

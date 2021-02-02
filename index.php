@@ -11,7 +11,6 @@
     <br/>
     <?php
         require "layout.php";
-        require "modals.html";
     ?>
 </body>
 <footer>

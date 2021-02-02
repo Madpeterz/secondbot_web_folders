@@ -17,10 +17,6 @@ $(document).ready(function () {
     } else {
         webuicode = "";
     }
-
-    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
-        activeTab = e.target.dataset.tabname;
-    });
 });
 
 function Now() {
@@ -50,36 +46,51 @@ function expandNode(nodeID) {
 }
 
 function callBot(command, method, postdata, callback) {
-    $.ajax({
-        type: method,
-        url: url + "/" + command,
-        data: postdata,
-        success: function (data) {
-            try {
-                if (data.hasOwnProperty('reply')) {
-                    callback.call(this, data.reply);
-                } else {
+    if (errors_counter > 15) {
+        errors_counter = 0;
+        addToreplyLog('Error limit reached stopping timers and disconnecting');
+        webUItoken = "";
+        for (var i = 1; i < 99999; i++) {
+            window.clearInterval(i);
+        }
+    }
+    else {
+        $.ajax({
+            type: method,
+            url: url + "/" + command,
+            data: postdata,
+            success: function (data) {
+                try {
+                    if (data.hasOwnProperty('reply')) {
+                        callback.call(this, data.reply);
+                    } else {
+                        callback.call(this, "error");
+                    }
+                }
+                catch (err) {
+                    console.log("Json error:" + data);
+                    console.log("Json error:" + err);
                     callback.call(this, "error");
                 }
-            }
-            catch (err) {
-                console.log("Json error:" + data);
-                console.log("Json error:" + err);
+
+            },
+            error: function (data) {
                 callback.call(this, "error");
             }
-
-        },
-        error: function (data) {
-            callback.call(this, "error");
-        }
-    });
+        });
+    }
 }
 
 function BasicChecks(value, sourcename) {
     if (value != "error") {
         if (value != "Authcode not accepted") {
             if (value != "Token not accepted") {
+                errors_counter = 0;
                 return true;
+            }
+            webUItoken = "";
+            for (var i = 1; i < 99999; i++) {
+                window.clearInterval(i);
             }
             addToreplyLog('Request: ' + sourcename + ' ' + value);
             FetchToken();
@@ -88,6 +99,7 @@ function BasicChecks(value, sourcename) {
         addToreplyLog('Request: ' + sourcename + ' ' + value);
         return false;
     }
+    errors_counter++;
     addToreplyLog('Request: ' + sourcename + ' error: ' + value);
     return false;
 }
