@@ -1,6 +1,7 @@
 
 
 $(document).ready(function () {
+    reset_events();
     webUIcode = localStorage.getItem("webuicode");
     if (webuicode != null) {
         url = localStorage.getItem("apiurl");

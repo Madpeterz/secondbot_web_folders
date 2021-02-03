@@ -14,14 +14,15 @@ function reset_events() {
 
     $(document).off('shown.bs.tab', 'a[data-toggle="pill"]');
 
-    $("#connectform").submit(function (e) {
+    $(document).on('submit', '#connectform', function (e) {
         e.preventDefault();
         localStorage.setItem("webuicode", $("#webuicode").val());
         localStorage.setItem("apiurl", $("#apiurl").val());
         localStorage.setItem("SignedCode", $("#signedcommand").val());
         window.location = window.location.href.split("?")[0];
     });
-    $("#disconnectform").submit(function (e) {
+
+    $(document).on('submit', '#disconnectform', function (e) {
         e.preventDefault();
         localStorage.clear();
         window.location = window.location.href.split("?")[0];
