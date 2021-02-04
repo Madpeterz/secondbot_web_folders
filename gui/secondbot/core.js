@@ -6,21 +6,114 @@ function getBotVersion() {
     getCallBotWithToken("core/version", SetBotVersion);
 }
 
-function FetchToken() {
-    for (var i = 1; i < 99999; i++) {
-        window.clearInterval(i);
+function getRegionName() {
+    getCallBotWithToken("core/regionname", SetRegionName);
+}
+
+function getRegionTile() {
+    getCallBotWithToken("core/regiontile/" + currentregion, SetRegionTile);
+}
+
+function getLocation() {
+    getCallBotWithToken("core/location", SetLocation);
+}
+
+function startAutoWalker() {
+    if (mapdblclicktimerid != null) {
+        window.clearInterval(mapdblclicktimerid);
+        mapdblclicktimerid = null;
     }
+    mapdblclick = false;
+    if (currentZ >= 0) {
+        console.log("walk to - end: " + walktoX + ", " + walktoY);
+        getCallBotWithToken("core/walkto/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
+    }
+}
+
+function teleportInSim() {
+    if (currentregion != "") {
+        if (currentZ >= 0) {
+            getCallBotWithToken("core/teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
+        }
+    }
+}
+
+function autowalkerFeedback(value) {
+    BasicChecks(value, "autowalkerFeedback");
+}
+
+function teleportFeedback(value) {
+    BasicChecks(value, "teleportFeedback");
+}
+
+
+function FetchToken() {
+    stoptimers();
     now = Now();
-    var raw = now + webUIcode;
-    HashResult = sha1(raw).substr(0, 10);
-    callBot("core/gettoken", "post", { authcode: HashResult, unixtimegiven: now }, SetToken);
+    var dif = now - lastfetchedtoken;
+    if (dif > 10) {
+        lastfetchedtoken = now;
+        var raw = now + webUIcode;
+        HashResult = sha1(raw).substr(0, 10);
+        callBot("core/gettoken", "post", { authcode: HashResult, unixtimegiven: now }, SetToken);
+    }
 }
 
 function SetBotName(value) {
-    setField("botname", value);
+    if (BasicChecks(value, "BotName") == true) {
+        setField("botname", value);
+    }
 }
 function SetBotVersion(value) {
-    setField("botversion", value);
+    if (BasicChecks(value, "BotVersion") == true) {
+        setField("botversion", value);
+    }
+}
+function SetRegionName(value) {
+    if (BasicChecks(value, "RegionName") == true) {
+        if (currentregion != value) {
+            setField("regionname", value);
+            currentregion = value;
+            getRegionTile();
+            getLocation();
+        }
+    }
+}
+
+function SetLocation(value) {
+    if (BasicChecks(value, "Location") == true) {
+        try {
+            jsondata = JSON.parse(value);
+            var needupdate = false;
+            if (currentX != jsondata.x) {
+                needupdate = true;
+            }
+            else if (currentY != jsondata.y) {
+                needupdate = true;
+            }
+            if (needupdate == true) {
+                currentX = jsondata.x;
+                currentY = jsondata.y;
+                currentZ = jsondata.z;
+                setField("posX", jsondata.x);
+                setField("posY", jsondata.y);
+                setField("posZ", jsondata.z);
+                restdotsonmap("mapme");
+                add_person_to_map(false, true, currentX, currentY, "mapme");
+            }
+        }
+        catch (err) {
+            addToErrorReplyLog('Location error ' + err);
+        }
+    }
+}
+
+function SetRegionTile(value) {
+    if (BasicChecks(value, "RegionTile") == true) {
+        if (value != "Unable to find region") {
+            $("#regionmap").css('background-image', 'url(http://secondlife.com/app/image/' + value + '/1)');
+        }
+    }
 }
 
 
@@ -28,15 +121,19 @@ function SetToken(token) {
     if (token != "error") {
         if (token != "Authcode not accepted") {
             webUItoken = token;
-            addToreplyLog('Connected to bot');
-            getBotName();
-            getBotVersion();
-            getBotFolders();
-            StartBotTimers();
+            if (webUItoken.length > 0) {
+                addToreplyLog('Connected to bot');
+                getBotName();
+                getBotVersion();
+                getBotFolders();
+                StartBotTimers();
+            } else {
+                addToErrorReplyLog("Token is invaild please reload");
+            }
         } else {
-            addToreplyLog('Error: Bad auth!');
+            addToErrorReplyLog("Bad auth code");
         }
     } else {
-        addToreplyLog('Error: Error!');
+        addToErrorReplyLog("Invaild token");
     }
 }

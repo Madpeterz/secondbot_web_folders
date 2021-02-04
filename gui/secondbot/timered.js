@@ -1,32 +1,41 @@
 setTimeout(reset_events, 1000);
 
 function StartBotTimers() {
-    for (var i = 1; i < 99999; i++) {
-        window.clearInterval(i);
+    stoptimers();
+    if (webUItoken.length > 0) {
+        friendsfirstload = true;
+        setTimeout(getGroupList, 300); // fetch group list [once]
+        setTimeout(getimList, 300); // fetch group list [once]
+        setTimeout(getRegionName, 300); // fetch region name [once]
+        setTimeout(getLocation, 200); // fetch location [once]
+        setTimeout(getFriendsList, 300); // update friendslist [once]
+
+        setInterval(getGroupList, 60000); // update grouplist (once a min)
+        setInterval(getimList, 5000); // update im windows (every 5 secs)
+
+
+
+        setInterval(getLocalchatHistory, 1250); // update localchat (every 1.2secs)
+        setInterval(getNearMe, 5000); // update localchat (every 5secs)
+
+        setInterval(getFriendsList, 2000); // update localchat (every 2secs)
+
+
+        setInterval(getimsHaveUnread, 1250); // update im unread status (every 1.2secs)
+        setInterval(getimChatHistory, 1250); // update im history (every 1.2secs)
+
+        setInterval(getGroupsHaveUnread, 1250); // update groupchat unread status (every 1.2secs)
+        setInterval(getGroupChatHistory, 1250); // update groupchat history (every 1.2secs)
+
+
+        setInterval(updateGrouppedBadges, 5000); // update badges [Main menu] (every 5secs)
+        setInterval(updateBadges, 5000); // update badges [Group menu] (every 5secs)
+
+        setInterval(getRegionName, 15000); // update region name every 15 secs
+        setInterval(getLocation, 1000); // update location every 3 secs
+    } else {
+        console.log("Error: webUItoken is zero len but timers started");
     }
-    setTimeout(getGroupList, 300); // fetch group list [once]
-    setTimeout(getimList, 300); // fetch group list [once]
-
-    setInterval(getGroupList, 60000); // update grouplist (once a min)
-    setInterval(getimList, 5000); // update im windows (every 5 secs)
-
-
-
-    setInterval(getLocalchatHistory, 1250); // update localchat (every 1.2secs)
-    setInterval(getNearMe, 5000); // update localchat (every 5secs)
-
-    setInterval(getFriendsList, 2000); // update localchat (every 2secs)
-
-
-    setInterval(getimsHaveUnread, 1250); // update im unread status (every 1.2secs)
-    setInterval(getimChatHistory, 1250); // update im history (every 1.2secs)
-
-    setInterval(getGroupsHaveUnread, 1250); // update groupchat unread status (every 1.2secs)
-    setInterval(getGroupChatHistory, 1250); // update groupchat history (every 1.2secs)
-
-
-    setInterval(updateGrouppedBadges, 5000); // update badges [Main menu] (every 5secs)
-    setInterval(updateBadges, 5000); // update badges [Group menu] (every 5secs)
 }
 
 function updateBadges() {

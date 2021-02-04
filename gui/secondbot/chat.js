@@ -3,11 +3,66 @@ function sendLocalChat(sendmessage) {
 }
 
 function getNearMe() {
-    getCallBotWithToken("core/nearme", setNearMe);
+    getCallBotWithToken("core/nearmewithdetails", setNearMeDetailed);
 }
 
-var nearMeEntry = '<li><button type="button" class="btn btn-primary mb-2 imavatar" data-name="[[AVATARNAME]]" data-uuid="[[AVATARUUID]]">[[AVATARNAME]]</button></li>';
+var nearMeEntry = `
+<tr>
+<td><button type="button" class="btn btn-[[BUTTONCOLOR]] mb-2 imavatar" data-name="[[AVATARNAME]]" data-uuid="[[AVATARUUID]]">[[AVATARNAME]]</button></td>
+<td>[[AVATARRANGE]]</td>
+</tr>
+`;
 
+var nearMeTableHeader = `
+<tr>
+<th>Name</td><th>Distance</th>
+</tr>
+`;
+
+function setNearMeDetailed(jsonRaw) {
+    var dt = new Date();
+    var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+    setField("nearmeupdated", time);
+    if (BasicChecks(jsonRaw, "NearMeDetailed") == true) {
+        try {
+            var output = nearMeTableHeader;
+            jsondata = JSON.parse(jsonRaw);
+            var newhash = "";
+            $.each(jsondata, function (i, item) {
+                newhash = sha1(newhash + item.range + item.id).substr(0, 10);
+            });
+            if (newhash != nearme_hash) {
+                nearme_hash = newhash;
+                restdotsonmap("worldmapdot");
+                $.each(jsondata, function (i, item) {
+                    var entry = nearMeEntry;
+                    entry = entry.replaceAll("[[AVATARUUID]]", item.id);
+                    entry = entry.replaceAll("[[AVATARNAME]]", item.name);
+                    entry = entry.replaceAll("[[AVATARRANGE]]", item.range);
+                    if (frienduuids.includes(item.id) == true) {
+                        add_person_to_map(true, false, item.x, item.y, "worldmapdot");
+                        entry = entry.replaceAll("[[BUTTONCOLOR]]", "success");
+                    } else {
+                        add_person_to_map(false, false, item.x, item.y, "worldmapdot");
+                        entry = entry.replaceAll("[[BUTTONCOLOR]]", "danger");
+                    }
+                    output = output + entry;
+                });
+                setField("nearmelist", output);
+                reset_events();
+            }
+        }
+        catch (err) {
+            addToErrorReplyLog('NearMe error ' + err);
+        }
+    }
+}
+
+/*
+# Old replaced by setNearMeDetailed
+ 
+var nearMeEntry = '<li><button type="button" class="btn btn-primary mb-2 imavatar" data-name="[[AVATARNAME]]" data-uuid="[[AVATARUUID]]">[[AVATARNAME]]</button></li>';
+ 
 function setNearMe(jsonRaw) {
     var dt = new Date();
     var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
@@ -37,6 +92,7 @@ function setNearMe(jsonRaw) {
         }
     }
 }
+*/
 
 
 
@@ -64,7 +120,10 @@ function updateLocalchatDisplay(jsonRaw) {
             }
         }
         catch (err) {
-            addToreplyLog('localchat error ' + err);
+            addToErrorReplyLog('localchat error ' + err);
         }
     }
 }
+
+
+

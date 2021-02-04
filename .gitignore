@@ -1,2 +1,4 @@
+vendor/
 gui/vendor/
 gui/composer.lock
+vendor/composer/autoload_namespaces.php

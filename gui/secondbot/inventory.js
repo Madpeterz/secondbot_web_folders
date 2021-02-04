@@ -31,6 +31,19 @@ function RefreshFolder(node) {
     }
 }
 
+function InventoryRez() {
+    if (ItemAPIBusy == false) {
+        ItemAPIBusy = true;
+        getCallBotWithToken("inventory/rezobject/" + ActiveNode.id, RezObjectFeedback);
+    }
+}
+
+function RezObjectFeedback(value) {
+    ItemAPIBusy = false;
+    ActiveNode = null;
+    BasicChecks(value, "RezObjectFeedback");
+}
+
 function InventoryRemove() {
     ItemAPIBusy = true;
     getCallBotWithToken("inventory/delete/" + ItemUUID + "/" + ItemIsFolder, SetDeleteResult);
@@ -44,6 +57,17 @@ function InventoryRename() {
 function InventorySend() {
     ItemAPIBusy = true;
     getCallBotWithToken("inventory/send/" + ItemUUID + "/" + $("#senditem-recipient").val(), SetSendResult);
+}
+
+function PlayGesture() {
+    ItemAPIBusy = true;
+    getCallBotWithToken("core/gesture/" + ItemUUID, PlayGestureFeedback);
+}
+
+function PlayGestureFeedback(value) {
+    ItemAPIBusy = false;
+    ActiveNode = null;
+    BasicChecks(value, "PlayGestureFeedback");
 }
 
 function SetRenameResult(jsonRaw) {
@@ -85,6 +109,26 @@ function DeleteNode(node, isfolder) {
         ItemIsFolder = isfolder;
         ActiveNode = node;
         showDeleteModal();
+    }
+}
+
+function GestureNode(node) {
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = false;
+        ActiveNode = node;
+        PlayGesture();
+    }
+}
+
+function RezNode(node) {
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = false;
+        ActiveNode = node;
+        InventoryRez();
     }
 }
 
@@ -147,20 +191,36 @@ function InventoryMenu(node) {
             label: "Send",
             action: function () { SendNode(node); }
         },
+        RezObject: {
+            label: "Rez",
+            action: function () { RezNode(node); }
+        },
         PreviewItem: {
             label: "Preview",
             action: function () { PreviewNode(node); }
+        },
+        PlayGesture: {
+            label: "Play",
+            action: function () { GestureNode(node); }
         }
     };
 
     var nodeObj = $("#" + node.id);
     var IsFolder = false;
     var IsPreviewable = false;
+    var IsRezable = false;
+    var isGesture = false;
     if (nodeObj.attr("type") == "Folder") {
         IsFolder = true;
     }
     if (nodeObj.attr("type") == "Texture") {
         IsPreviewable = true;
+    }
+    if (nodeObj.attr("type") == "Object") {
+        IsRezable = true;
+    }
+    if (nodeObj.attr("type") == "Gesture") {
+        isGesture = true;
     }
 
     if ((node.parent == "#") || (node.parent == RootFolderid)) {
@@ -168,6 +228,8 @@ function InventoryMenu(node) {
         delete items.deleteFolder;
         delete items.renameItem;
         delete items.renameFolder;
+        delete items.RezObject;
+        delete items.PlayGesture;
     }
 
     if (IsFolder == true) {
@@ -178,6 +240,14 @@ function InventoryMenu(node) {
         delete items.deleteFolder;
         delete items.renameFolder;
         delete items.refreshItem;
+    }
+
+    if (IsRezable == false) {
+        delete items.RezObject;
+    }
+
+    if (isGesture == false) {
+        delete items.PlayGesture;
     }
 
 
@@ -224,7 +294,7 @@ function SetFolderContents(jsonRaw) {
         }
         catch (err) {
             console.log(err);
-            addToreplyLog('Failed processing folder reply');
+            addToErrorReplyLog('Failed processing folder reply');
         }
     }
     ActiveNode = "";
@@ -248,7 +318,7 @@ function unpackInventoryMapFolder(JsonObject, parentid) {
                     });
                 }
                 catch (err) {
-                    console.log("Error processing folder data strut: " + err);
+                    addToErrorReplyLog("Error processing folder data strut: " + err);
                 }
             }
         }
@@ -275,15 +345,23 @@ function SetBotFolders(jsonRaw) {
                     "contextmenu": {
                         "items": InventoryMenu
                     }
-                }).on('ready.jstree', function (e, data) {
+                })
+                .on('dblclick.jstree', function (event) {
+                    var rawnode = $(event.target).closest("li");
+                    node = $('#jstree').jstree(true).get_node(rawnode.attr("id"))
+                    if (rawnode.attr("type") == "Folder") {
+                        RefreshFolder(node);
+                    }
+                })
+                .on('ready.jstree', function (e, data) {
                     unpackInventoryMapFolder(jsondata, "#");
-                    addToreplyLog('Inventory folders ready');
+                    addToErrorReplyLog('Inventory folders ready');
                 });
+
 
         }
         catch (err) {
-            console.log(err);
-            addToreplyLog('Failed processing folder reply');
+            addToErrorReplyLog('Failed processing folder reply');
         }
     }
 }

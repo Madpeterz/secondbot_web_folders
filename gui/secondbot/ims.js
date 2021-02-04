@@ -87,7 +87,7 @@ function SetimList(jsonRaw) {
             reset_events();
         }
         catch (err) {
-            console.log("imlist " + err);
+            addToErrorReplyLog("imlist " + err);
         }
 
     }
@@ -114,7 +114,7 @@ function SetimsWithUnread(jsonRaw) {
             });
         }
         catch (err) {
-            console.log("ims badge status: " + err);
+            addToErrorReplyLog("ims badge status: " + err);
         }
     }
 }
@@ -140,7 +140,7 @@ function SetimchatHistory(jsonRaw) {
                         setField("im-" + selectedim + "-history", output);
                     }
                     catch (err) {
-                        addToreplyLog('imchatHistory error ' + err);
+                        addToErrorReplyLog('imchatHistory error ' + err);
                     }
                 }
             }

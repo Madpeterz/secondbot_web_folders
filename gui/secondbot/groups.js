@@ -82,7 +82,7 @@ function SetGroupList(jsonRaw) {
             reset_events();
         }
         catch (err) {
-            console.log("grouplist " + err);
+            addToErrorReplyLog("grouplist " + err);
         }
 
     }
@@ -109,7 +109,7 @@ function SetGroupsWithUnread(jsonRaw) {
             });
         }
         catch (err) {
-            console.log("groups badge status: " + err);
+            addToErrorReplyLog("groups badge status: " + err);
         }
     }
 }
@@ -135,7 +135,7 @@ function SetGroupchatHistory(jsonRaw) {
                         setField("group-" + selectedgroup + "-history", output);
                     }
                     catch (err) {
-                        addToreplyLog('GroupchatHistory error ' + err);
+                        addToErrorReplyLog('GroupchatHistory error ' + err);
                     }
                 }
             }

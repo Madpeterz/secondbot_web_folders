@@ -1,6 +1,7 @@
 // Last unixtime of command sent
 var now = 0;
 var webUItoken = "";
+var lastfetchedtoken = 0;
 
 // confuig values
 var webUIcode = "";
@@ -9,6 +10,19 @@ var SignedCode = "";
 
 // UI tabs
 var activeTab = null;
+
+// location
+var currentregion = "";
+var currentX = 0;
+var currentY = 0;
+var currentZ = -1;
+
+// map / autowalker
+var mapdblclick = false;
+var mapdblclicktimerid = null;
+var walktoX = 0;
+var walktoY = 0;
+
 
 
 // inventory
@@ -34,6 +48,8 @@ var selectedgroup = "";
 
 // friends
 var friendshash = "";
+var frienduuids = [];
+var friendsfirstload = false;
 
 // im
 var knownims = [];

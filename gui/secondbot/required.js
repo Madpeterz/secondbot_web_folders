@@ -82,27 +82,49 @@ function callBot(command, method, postdata, callback) {
     }
 }
 
+function stoptimers(removetoken) {
+    for (var i = 1; i < 99999; i++) {
+        window.clearInterval(i);
+    }
+    errors_counter = 0;
+}
+
 function BasicChecks(value, sourcename) {
-    if (value != "error") {
-        if (value != "Authcode not accepted") {
-            if (value != "Token not accepted") {
-                errors_counter = 0;
-                return true;
-            }
-            webUItoken = "";
-            for (var i = 1; i < 99999; i++) {
-                window.clearInterval(i);
-            }
-            addToreplyLog('Request: ' + sourcename + ' ' + value);
-            FetchToken();
-            return false;
-        }
-        addToreplyLog('Request: ' + sourcename + ' ' + value);
+    if (value == "Authcode not accepted") {
+        webUItoken = "";
+        stoptimers();
+        addToreplyLog("Error: Auth code rejected - shutting down");
         return false;
     }
+    if (value == "Token not accepted") {
+        addToErrorReplyLog('Request: ' + sourcename + ' ' + value);
+        FetchToken();
+        return false;
+    }
+    var vcheck = value + "thisisatest";
+    if (vcheck.startsWith("error") == true) {
+        addToErrorReplyLog('Request: ' + sourcename + ' ' + value);
+        return false;
+    }
+    if (vcheck.startsWith("Error") == true) {
+        addToErrorReplyLog('Request: ' + sourcename + ' ' + value);
+        return false;
+    }
+    errors_counter--;
+    if (errors_counter < 0) {
+        errors_counter = 0;
+    }
+    return true;
+}
+
+function addToErrorReplyLog(message) {
     errors_counter++;
-    addToreplyLog('Request: ' + sourcename + ' error: ' + value);
-    return false;
+    addToreplyLog(message);
+    if (errors_counter >= 10) {
+        webUItoken = "";
+        stoptimers();
+        addToreplyLog("Stacking errors limit reached - shutting down");
+    }
 }
 
 function addToreplyLog(message) {
@@ -114,4 +136,41 @@ function setField(field, value) {
     if (BasicChecks(value, field) == true) {
         $('#' + field).html(value);
     }
+}
+
+var rollingmapid = 0;
+function addtomap(X, Y, image, useclass) {
+    rollingmapid++;
+    if (rollingmapid > 900) {
+        rollingmapid = 0;
+    }
+    var pixalsize = 13;
+    var half = Math.floor(pixalsize / 2);
+    $('#regionmap').prepend('<img class="noselect ' + useclass + '" id="mapdot' + rollingmapid + '" src="images/' + image + '" />');
+    $('#mapdot' + rollingmapid).css('position', 'absolute')
+        .css('top', (Y - half) + 'px')
+        .css('left', (X - half) + 'px')
+        .css('width', '' + pixalsize + 'px')
+        .css('height', '' + pixalsize + 'px')
+        .css('z-index', 4);
+};
+
+
+function restdotsonmap(classname) {
+    $("." + classname).remove();
+}
+
+function add_person_to_map(isfriend, isyou, x, y, classname) {
+    var xpercent = (x / 256) * 100;
+    var ypercent = (y / 256) * 100;
+    var realxpercent = (500 / 100) * xpercent;
+    var realypercent = 500 - (500 / 100) * ypercent;
+    var useimage = "someone.png";
+    if (isfriend == true) {
+        useimage = "friend.png";
+    } else if (isyou == true) {
+        useimage = "you.png";
+    }
+
+    addtomap(realxpercent, realypercent, useimage, classname);
 }

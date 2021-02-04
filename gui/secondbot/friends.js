@@ -5,7 +5,8 @@ var FriendsEntry = `
 `;
 
 function getFriendsList() {
-    if (activeTab == "friends") {
+    if ((activeTab == "friends") || (friendsfirstload == true)) {
+        friendsfirstload = false;
         getCallBotWithToken("core/friends", setFriendsList);
     }
 }
@@ -19,12 +20,14 @@ function setFriendsList(jsonRaw) {
             var output = "";
             jsondata = JSON.parse(jsonRaw);
             var newhash = "";
+            var newfrienduuids = [];
             $.each(jsondata, function (i, item) {
                 if (item.hasOwnProperty('id')) {
                     newhash = sha1(newhash + item.name).substr(0, 10);
                     var entry = FriendsEntry;
                     entry = entry.replaceAll("[[AVATARUUID]]", item.id);
                     entry = entry.replaceAll("[[AVATARNAME]]", item.name);
+                    newfrienduuids.push(item.id);
                     if (item.online == true) {
                         entry = entry.replaceAll("[[ONLINESTATUS]]", "success");
                     } else {
@@ -36,13 +39,14 @@ function setFriendsList(jsonRaw) {
             if (newhash != "") {
                 if (newhash != friendshash) {
                     friendshash = newhash;
+                    frienduuids = newfrienduuids;
                     setField("friendlist", output);
                     reset_events();
                 }
             }
         }
         catch (err) {
-            addToreplyLog('Friendslist error ' + err);
+            addToErrorReplyLog('Friendslist error ' + err);
         }
     }
 

@@ -9,10 +9,36 @@ function reset_events() {
     $(document).off('submit', "#disconnectform");
     $(document).off('submit', '.groupchatform');
     $(document).off('submit', '.localchatform');
-
-
+    $(document).off("click", "#regionmap");
 
     $(document).off('shown.bs.tab', 'a[data-toggle="pill"]');
+
+    $(document).on("click", "#regionmap", function (event) {
+        if (mapdblclick == true) {
+            // teleport to post
+            console.log("Teleporting to: " + walktoX + ", " + walktoY);
+            mapdblclick = false;
+            if (mapdblclicktimerid != null) {
+                window.clearInterval(mapdblclicktimerid);
+                mapdblclicktimerid = null;
+            }
+            teleportInSim();
+        } else {
+            // start 400ms timer (if expires walk to pos)
+            var elm = $(this);
+            var xPos = event.pageX - elm.offset().left;
+            var yPos = event.pageY - elm.offset().top;
+
+            var xpercent = (xPos / 500) * 100;
+            var ypercent = (yPos / 500) * 100;
+
+            walktoX = (256 / 100) * xpercent;
+            walktoY = 256 - (256 / 100) * ypercent;
+            console.log("walk to - start: " + walktoX + ", " + walktoY);
+            mapdblclick = true;
+            mapdblclicktimerid = setTimeout(startAutoWalker, 400);
+        }
+    });
 
     $(document).on('submit', '#connectform', function (e) {
         e.preventDefault();
