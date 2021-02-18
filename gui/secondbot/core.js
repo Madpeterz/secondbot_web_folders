@@ -26,14 +26,14 @@ function startAutoWalker() {
     mapdblclick = false;
     if (currentZ >= 0) {
         console.log("walk to - end: " + walktoX + ", " + walktoY);
-        getCallBotWithToken("core/AutoPilot/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
+        getCallBotWithToken("movement/AutoPilot/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
     }
 }
 
 function teleportInSim() {
     if (currentregion != "") {
         if (currentZ >= 0) {
-            getCallBotWithToken("core/Teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
+            getCallBotWithToken("movement/Teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
         }
     }
 }
