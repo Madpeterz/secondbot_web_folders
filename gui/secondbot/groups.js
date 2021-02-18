@@ -3,7 +3,7 @@ function getGroupList() {
 }
 
 function getGroupsHaveUnread() {
-    getCallBotWithToken("group/haveunreadgroupchat", SetGroupchatHaveUnread);
+    getCallBotWithToken("group/GroupchatAnyUnread", SetGroupchatHaveUnread);
 }
 
 function getGroupsWithUnread() {

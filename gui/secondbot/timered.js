@@ -96,7 +96,3 @@ function updateLocalchatBadge() {
         localchat_changes_from_last_displayed = 0;
     }
 }
-
-function getLocalchatHistory() {
-    getCallBotWithToken("chat/localchathistory", updateLocalchatDisplay);
-}

@@ -6,6 +6,10 @@ function getNearMe() {
     getCallBotWithToken("avatars/NearmeWithDetails", setNearMeDetailed);
 }
 
+function getLocalchatHistory() {
+    getCallBotWithToken("chat/LocalChatHistory", updateLocalchatDisplay);
+}
+
 var nearMeEntry = `
 <tr>
 <td><button type="button" class="btn btn-[[BUTTONCOLOR]] mb-2 imavatar" data-name="[[AVATARNAME]]" data-uuid="[[AVATARUUID]]">[[AVATARNAME]]</button></td>
