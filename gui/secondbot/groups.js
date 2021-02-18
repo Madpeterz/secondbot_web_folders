@@ -1,20 +1,20 @@
 function getGroupList() {
-    getCallBotWithToken("groups/listgroups", SetGroupList);
+    getCallBotWithToken("group/GetGroupList", SetGroupList);
 }
 
 function getGroupsHaveUnread() {
-    getCallBotWithToken("groups/haveunreadgroupchat", SetGroupchatHaveUnread);
+    getCallBotWithToken("group/haveunreadgroupchat", SetGroupchatHaveUnread);
 }
 
 function getGroupsWithUnread() {
-    getCallBotWithToken("groups/listgroupswithunread", SetGroupsWithUnread);
+    getCallBotWithToken("group/GroupchatListAllUnreadGroups", SetGroupsWithUnread);
 }
 
 function sendGroupchat(sendmessage) {
     if (activeTab == "groups") {
         if (selectedgroup != "") {
             if (knowngroups.includes(selectedgroup) == true) {
-                postCallBotWithToken("groups/sendgroupchat/" + selectedgroup, { message: sendmessage }, GroupChatReply);
+                postCallBotWithToken("group/Groupchat/" + selectedgroup, { message: sendmessage }, GroupChatReply);
             }
         }
     }
@@ -25,7 +25,7 @@ function getGroupChatHistory() {
     if (activeTab == "groups") {
         if (selectedgroup != "") {
             if (knowngroups.includes(selectedgroup) == true) {
-                getCallBotWithToken("groups/getgroupchat/" + selectedgroup, SetGroupchatHistory);
+                getCallBotWithToken("group/GroupchatHistory/" + selectedgroup, SetGroupchatHistory);
             }
         }
     }

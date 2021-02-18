@@ -22,7 +22,7 @@ function sendImChat(sendmessage) {
 }
 
 function ImSend(sendmessage, avatar) {
-    postCallBotWithToken("ims/sendimchat/" + avatar, { message: sendmessage }, imChatReply);
+    postCallBotWithToken("chat/IM/" + avatar, { message: sendmessage }, imChatReply);
 
 }
 

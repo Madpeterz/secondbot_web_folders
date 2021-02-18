@@ -1,6 +1,6 @@
 
 function getBotFolders() {
-    getCallBotWithToken("inventory/folders", SetBotFolders);
+    getCallBotWithToken("inventory/InventoryFolders", SetBotFolders);
 }
 
 
@@ -8,7 +8,7 @@ function getBotRealUUID(callback) {
     if (ItemAPIBusy == false) {
         ItemAPIBusy = true;
         RealUUIDCallback = callback;
-        getCallBotWithToken("inventory/realuuid/" + ItemUUID, setBotRealUUID);
+        getCallBotWithToken("inventory/getRealUUID/" + ItemUUID, setBotRealUUID);
     }
 }
 
@@ -27,14 +27,14 @@ function RefreshFolder(node) {
     if (ItemAPIBusy == false) {
         ActiveNode = node;
         ItemAPIBusy = true;
-        getCallBotWithToken("inventory/contents/" + ActiveNode.id, SetFolderContents);
+        getCallBotWithToken("inventory/InventoryContents/" + ActiveNode.id, SetFolderContents);
     }
 }
 
 function InventoryRez() {
     if (ItemAPIBusy == false) {
         ItemAPIBusy = true;
-        getCallBotWithToken("inventory/rezobject/" + ActiveNode.id, RezObjectFeedback);
+        getCallBotWithToken("inventory/RezObject/" + ActiveNode.id, RezObjectFeedback);
     }
 }
 
@@ -46,22 +46,28 @@ function RezObjectFeedback(value) {
 
 function InventoryRemove() {
     ItemAPIBusy = true;
-    getCallBotWithToken("inventory/delete/" + ItemUUID + "/" + ItemIsFolder, SetDeleteResult);
+    if (ItemIsFolder == true) {
+        getCallBotWithToken("inventory/DeleteInventoryFolder/" + ItemUUID, SetDeleteResult);
+    }
+    else {
+        getCallBotWithToken("inventory/DeleteInventoryItem/" + ItemUUID, SetDeleteResult);
+    }
 }
+
 
 function InventoryRename() {
     ItemAPIBusy = true;
-    postCallBotWithToken("inventory/rename/" + ItemUUID, { newname: $("#rename-newname").val() }, SetRenameResult);
+    postCallBotWithToken("inventory/RenameInventory/" + ItemUUID, { newname: $("#rename-newname").val() }, SetRenameResult);
 }
 
 function InventorySend() {
     ItemAPIBusy = true;
-    getCallBotWithToken("inventory/send/" + ItemUUID + "/" + $("#senditem-recipient").val(), SetSendResult);
+    getCallBotWithToken("inventory/SendItem/" + ItemUUID + "/" + $("#senditem-recipient").val(), SetSendResult);
 }
 
 function PlayGesture() {
     ItemAPIBusy = true;
-    getCallBotWithToken("core/gesture/" + ItemUUID, PlayGestureFeedback);
+    getCallBotWithToken("animation/PlayGesture/" + ItemUUID, PlayGestureFeedback);
 }
 
 function PlayGestureFeedback(value) {

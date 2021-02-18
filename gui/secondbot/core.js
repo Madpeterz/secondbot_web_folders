@@ -1,21 +1,21 @@
 function getBotName() {
-    getCallBotWithToken("core/name", SetBotName);
+    getCallBotWithToken("info/Name", SetBotName);
 }
 
 function getBotVersion() {
-    getCallBotWithToken("core/version", SetBotVersion);
+    getCallBotWithToken("info/Version", SetBotVersion);
 }
 
 function getRegionName() {
-    getCallBotWithToken("core/regionname", SetRegionName);
+    getCallBotWithToken("info/SimName", SetRegionName);
 }
 
 function getRegionTile() {
-    getCallBotWithToken("core/regiontile/" + currentregion, SetRegionTile);
+    getCallBotWithToken("estate/GetSimTexture/" + currentregion, SetRegionTile);
 }
 
 function getLocation() {
-    getCallBotWithToken("core/location", SetLocation);
+    getCallBotWithToken("info/GetPosition", SetLocation);
 }
 
 function startAutoWalker() {
@@ -26,14 +26,14 @@ function startAutoWalker() {
     mapdblclick = false;
     if (currentZ >= 0) {
         console.log("walk to - end: " + walktoX + ", " + walktoY);
-        getCallBotWithToken("core/walkto/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
+        getCallBotWithToken("core/AutoPilot/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
     }
 }
 
 function teleportInSim() {
     if (currentregion != "") {
         if (currentZ >= 0) {
-            getCallBotWithToken("core/teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
+            getCallBotWithToken("core/Teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
         }
     }
 }
@@ -55,7 +55,7 @@ function FetchToken() {
         lastfetchedtoken = now;
         var raw = now + webUIcode;
         HashResult = sha1(raw).substr(0, 10);
-        callBot("core/gettoken", "post", { authcode: HashResult, unixtimegiven: now }, SetToken);
+        callBot("core/GetToken", "post", { authcode: HashResult, unixtimegiven: now }, SetToken);
     }
 }
 
