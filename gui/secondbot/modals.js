@@ -32,4 +32,10 @@ function showTexturePreview() {
 }
 
 
+function showUUIDModal() {
+    $("#inventoryUUIDname").val(ItemName);
+    $("#inventoryUUID").val(ItemUUID);
+    $('#inventoryuuidwindow').modal('show');
+}
+
 

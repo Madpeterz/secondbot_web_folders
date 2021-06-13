@@ -169,6 +169,17 @@ function PreviewNode(node) {
     }
 }
 
+function GetUUIDNode(node) {
+    if (ItemAPIBusy == false) {
+        ItemName = node.text;
+        ItemUUID = node.id;
+        ItemIsFolder = false;
+        ActiveNode = node;
+        RealUUID = "";
+        showUUIDModal();
+    }
+}
+
 
 function InventoryMenu(node) {
     // The default set of all items
@@ -208,6 +219,10 @@ function InventoryMenu(node) {
         PlayGesture: {
             label: "Play",
             action: function () { GestureNode(node); }
+        },
+        GetUUID: {
+            label: "UUID",
+            action: function () { GetUUIDNode(node); }
         }
     };
 
@@ -242,6 +257,7 @@ function InventoryMenu(node) {
         delete items.deleteItem;
         delete items.renameItem;
         delete items.SendItem;
+        //delete items.GetUUID;
     } else {
         delete items.deleteFolder;
         delete items.renameFolder;
