@@ -101,7 +101,9 @@ function SetDeleteResult(jsonRaw) {
         addToreplyLog('Delete inventory: ' + jsonRaw);
         if (jsonRaw == "True") {
             var jstree = $("#jstree").jstree(true);
+            var targetNode = jstree.get_node(ActiveNode).parent;
             jstree.delete_node(ActiveNode);
+            getCallBotWithToken("inventory/InventoryContents/" + targetNode.id, SetFolderContents);
         }
     }
     ActiveNode = null;
