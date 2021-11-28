@@ -1,13 +1,13 @@
 function getimList() {
-    getCallBotWithToken("im/chatwindows", SetimList);
+    getCallBotWithToken("chat/chatwindows", SetimList);
 }
 
 function getimsHaveUnread() {
-    getCallBotWithToken("im/haveunreadims", SetimchatHaveUnread);
+    getCallBotWithToken("chat/haveunreadims", SetimchatHaveUnread);
 }
 
 function getimsWithUnread() {
-    getCallBotWithToken("im/listwithunread", SetimsWithUnread);
+    getCallBotWithToken("chat/listwithunread", SetimsWithUnread);
 }
 
 function sendImChat(sendmessage) {
@@ -30,7 +30,7 @@ function getimChatHistory() {
     if (activeTab == "ims") {
         if (selectedim != "") {
             if (knownims.includes(selectedim) == true) {
-                getCallBotWithToken("im/getimchat/" + selectedim, SetimchatHistory);
+                getCallBotWithToken("chat/getimchat/" + selectedim, SetimchatHistory);
             }
         }
     }
