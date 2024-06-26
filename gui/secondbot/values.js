@@ -4,7 +4,6 @@ var webUItoken = "";
 var lastfetchedtoken = 0;
 
 // confuig values
-var webUIcode = "";
 var url = "";
 var SignedCode = "";
 

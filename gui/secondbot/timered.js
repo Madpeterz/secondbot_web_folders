@@ -2,7 +2,7 @@ setTimeout(reset_events, 1000);
 
 function StartBotTimers() {
     stoptimers();
-    if (webUItoken.length > 0) {
+    if (SignedCode.length > 0) {
         friendsfirstload = true;
         setTimeout(getGroupList, 300); // fetch group list [once]
         setTimeout(getimList, 300); // fetch group list [once]

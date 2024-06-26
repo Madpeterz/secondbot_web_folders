@@ -7,7 +7,7 @@ var FriendsEntry = `
 function getFriendsList() {
     if ((activeTab == "friends") || (friendsfirstload == true)) {
         friendsfirstload = false;
-        getCallBotWithToken("friends/Friendslist", setFriendsList);
+        postCallBotWithToken("Friendslist", {}, setFriendsList);
     }
 }
 

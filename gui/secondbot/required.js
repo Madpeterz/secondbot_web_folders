@@ -2,36 +2,24 @@
 
 $(document).ready(function () {
     reset_events();
-    webUIcode = localStorage.getItem("webuicode");
-    if (webuicode != null) {
-        url = localStorage.getItem("apiurl");
-        if (url != null) {
-            SignedCode = localStorage.getItem("SignedCode");
-            addToreplyLog("starting connection to endpoint: " + url);
-            $("#disconnectform").removeClass("d-none");
-            $("#connectform").addClass("d-none");
-            FetchToken();
-        } else {
-            url = "";
-            webuicode = "";
-        }
+    url = localStorage.getItem("apiurl");
+    if (url != null) {
+        SignedCode = localStorage.getItem("SignedCode");
+        addToreplyLog("starting connection to endpoint: " + url);
+        $("#disconnectform").removeClass("d-none");
+        $("#connectform").addClass("d-none");
+        FetchToken();
     } else {
-        webuicode = "";
+        url = "";
+        SignedCode = "";
     }
 });
 
 function Now() {
     return Math.round(+new Date() / 1000);
 }
-
-function getCallBotWithToken(command, callback) {
-    var action = command + "/" + webUItoken;
-    callBot(action, "get", {}, callback);
-}
-
 function postCallBotWithToken(command, args, callback) {
-    var action = command + "/" + webUItoken;
-    callBot(action, "post", args, callback);
+    callBot(command, args, callback);
 }
 
 function expandNode(nodeID) {
@@ -46,7 +34,7 @@ function expandNode(nodeID) {
     }
 }
 
-function callBot(command, method, postdata, callback) {
+function callBot(command, postdata, callback) {
     if (errors_counter > 15) {
         errors_counter = 0;
         addToreplyLog('Error limit reached stopping timers and disconnecting');
@@ -56,16 +44,33 @@ function callBot(command, method, postdata, callback) {
         }
     }
     else {
+        var unixtime = Now();
+        var argsstring = "";
+        var addon = "";
+        for (const [key, value] of Object.entries(postdata)) {
+            argsstring = argsstring + addon + value;
+            addon = "~#~";
+        }
+        var signing = sha1(command + argsstring + unixtime + SignedCode);
+        sendpostdata = {
+            commandName: command,
+            args: argsstring,
+            signing: signing,
+            unixtime: unixtime,
+        };
         $.ajax({
-            type: method,
-            url: url + "/" + command,
-            data: postdata,
+            type: "post",
+            url: url + "/api/Run",
+            data: sendpostdata,
             success: function (data) {
                 try {
-                    if (data.hasOwnProperty('reply')) {
-                        callback.call(this, data.reply);
-                    } else {
-                        callback.call(this, "error");
+                    if(data.hasOwnProperty('Value')) {
+                        data = JSON.parse(data.Value);
+                        if (data.hasOwnProperty('reply')) {
+                            callback.call(this, data.reply);
+                        } else {
+                            callback.call(this, "error");
+                        }
                     }
                 }
                 catch (err) {

@@ -1,13 +1,13 @@
 function sendLocalChat(sendmessage) {
-    postCallBotWithToken("chat/Say/0", { message: sendmessage }, updateLocalchatDisplay);
+    postCallBotWithToken("Say", { channel:0, message: sendmessage }, updateLocalchatDisplay);
 }
 
 function getNearMe() {
-    getCallBotWithToken("avatars/NearmeWithDetails", setNearMeDetailed);
+    postCallBotWithToken("NearmeWithDetails", {}, setNearMeDetailed);
 }
 
 function getLocalchatHistory() {
-    getCallBotWithToken("chat/LocalChatHistory", updateLocalchatDisplay);
+    postCallBotWithToken("LocalChatHistory", {}, updateLocalchatDisplay);
 }
 
 var nearMeEntry = `
@@ -61,44 +61,6 @@ function setNearMeDetailed(jsonRaw) {
         }
     }
 }
-
-/*
-# Old replaced by setNearMeDetailed
- 
-var nearMeEntry = '<li><button type="button" class="btn btn-primary mb-2 imavatar" data-name="[[AVATARNAME]]" data-uuid="[[AVATARUUID]]">[[AVATARNAME]]</button></li>';
- 
-function setNearMe(jsonRaw) {
-    var dt = new Date();
-    var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-    setField("nearmeupdated", time);
-    if (BasicChecks(jsonRaw, "NearMe") == true) {
-        try {
-            var output = "";
-            jsondata = JSON.parse(jsonRaw);
-            var newhash = "";
-            $.each(jsondata, function (i, item) {
-                newhash = sha1(newhash + item).substr(0, 10);
-                var entry = nearMeEntry;
-                entry = entry.replaceAll("[[AVATARUUID]]", i);
-                entry = entry.replaceAll("[[AVATARNAME]]", item);
-                output = output + entry;
-            });
-            if (newhash != "") {
-                if (newhash != nearme_hash) {
-                    nearme_hash = newhash;
-                    setField("nearmelist", output);
-                    reset_events();
-                }
-            }
-        }
-        catch (err) {
-            addToreplyLog('NearMe error ' + err);
-        }
-    }
-}
-*/
-
-
 
 function updateLocalchatDisplay(jsonRaw) {
     if (BasicChecks(jsonRaw, "localchathistory") == true) {

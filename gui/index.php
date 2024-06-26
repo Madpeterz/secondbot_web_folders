@@ -2,20 +2,21 @@
 <html lang="en">
 
 <head>
-<?php
+    <?php
     require "header.html";
-?>
+    ?>
 </head>
 
 <body>
-    <br/>
+    <br />
     <?php
-        require "layout.php";
+    require "layout.php";
     ?>
 </body>
 <footer>
     <?php
-        require "scripts.html";
+    require "scripts.html";
     ?>
 </footer>
+
 </html>

@@ -1,21 +1,21 @@
 function getBotName() {
-    getCallBotWithToken("info/Name", SetBotName);
+    postCallBotWithToken("Name", {}, SetBotName);
 }
 
 function getBotVersion() {
-    getCallBotWithToken("info/Version", SetBotVersion);
+    postCallBotWithToken("Version", {}, SetBotVersion);
 }
 
 function getRegionName() {
-    getCallBotWithToken("info/SimName", SetRegionName);
+    postCallBotWithToken("SimName", {}, SetRegionName);
 }
 
 function getRegionTile() {
-    getCallBotWithToken("estate/GetSimTexture/" + currentregion, SetRegionTile);
+    postCallBotWithToken("GetSimTexture", {regionname:currentregion}, SetRegionTile);
 }
 
 function getLocation() {
-    getCallBotWithToken("info/GetPosition", SetLocation);
+    postCallBotWithToken("GetPosition", {}, SetLocation);
 }
 
 function startAutoWalker() {
@@ -26,14 +26,14 @@ function startAutoWalker() {
     mapdblclick = false;
     if (currentZ >= 0) {
         console.log("walk to - end: " + walktoX + ", " + walktoY);
-        getCallBotWithToken("movement/AutoPilot/" + walktoX + "/" + walktoY + "/" + currentZ, autowalkerFeedback);
+        postCallBotWithToken("AutoPilot", {x: walktoX, y:walktoY, z:currentZ}, autowalkerFeedback);
     }
 }
 
 function teleportInSim() {
     if (currentregion != "") {
         if (currentZ >= 0) {
-            getCallBotWithToken("movement/Teleport/" + currentregion + "/" + walktoX + "/" + walktoY + "/" + currentZ, teleportFeedback);
+            postCallBotWithToken("Teleport", {region: currentregion, x: walktoX, y:walktoY, z:currentZ}, teleportFeedback);
         }
     }
 }
@@ -46,17 +46,9 @@ function teleportFeedback(value) {
     BasicChecks(value, "teleportFeedback");
 }
 
-
 function FetchToken() {
     stoptimers();
-    now = Now();
-    var dif = now - lastfetchedtoken;
-    if (dif > 10) {
-        lastfetchedtoken = now;
-        var raw = now + webUIcode;
-        HashResult = sha1(raw).substr(0, 10);
-        callBot("core/GetToken", "post", { authcode: HashResult, unixtimegiven: now }, SetToken);
-    }
+    postCallBotWithToken("Hello", {}, SetToken);
 }
 
 function SetBotName(value) {
@@ -117,23 +109,10 @@ function SetRegionTile(value) {
 }
 
 
-function SetToken(token) {
-    if (token != "error") {
-        if (token != "Authcode not accepted") {
-            webUItoken = token;
-            if (webUItoken.length > 0) {
-                addToreplyLog('Connected to bot');
-                getBotName();
-                getBotVersion();
-                getBotFolders();
-                StartBotTimers();
-            } else {
-                addToErrorReplyLog("Token is invaild please reload");
-            }
-        } else {
-            addToErrorReplyLog("Bad auth code");
-        }
-    } else {
-        addToErrorReplyLog("Invaild token");
-    }
+function SetToken() {
+    addToreplyLog('Connected to bot');
+    getBotName();
+    getBotVersion();
+    getBotFolders();
+    StartBotTimers();
 }
