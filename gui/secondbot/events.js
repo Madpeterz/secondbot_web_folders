@@ -93,8 +93,11 @@ function reset_events() {
             if (selectedim != "") {
                 if (knownims.includes(selectedim) == true) {
                     var message = $("#im-" + selectedim + "-chatinput").val();
-                    $("#im-" + selectedim + "-chatinput").val("");
-                    sendImChat(message);
+                    if(message != "")
+                    {
+                        $("#im-" + selectedim + "-chatinput").val("");
+                        sendImChat(message);
+                    }
                 }
             }
         }

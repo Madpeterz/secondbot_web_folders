@@ -81,6 +81,7 @@ function callBot(command, postdata, callback) {
 
             },
             error: function (data) {
+                console.log("HTTP error for command "+command+" :" + data);
                 callback.call(this, "error");
             }
         });

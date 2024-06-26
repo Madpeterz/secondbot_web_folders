@@ -70,6 +70,11 @@ function PlayGesture() {
     postCallBotWithToken("PlayGesture", {gesture: ItemUUID} , PlayGestureFeedback);
 }
 
+function DoSwitchOutfit() {
+    ItemAPIBusy = true;
+    postCallBotWithToken("SwapOutfit", {folder: ItemUUID} , PlayGestureFeedback);
+}
+
 function PlayGestureFeedback(value) {
     ItemAPIBusy = false;
     ActiveNode = null;
@@ -118,6 +123,19 @@ function DeleteNode(node, isfolder) {
         ActiveNode = node;
         showDeleteModal();
     }
+}
+
+function SwapOutfit(node, isfolder) {
+    if (ItemAPIBusy == false) {
+        if(isfolder == true)
+        {
+            ItemName = node.text;
+            ItemUUID = node.id;
+            ItemIsFolder = isfolder;
+            ActiveNode = node;
+            DoSwitchOutfit();
+        }
+    }   
 }
 
 function GestureNode(node) {
@@ -225,6 +243,10 @@ function InventoryMenu(node) {
         GetUUID: {
             label: "UUID",
             action: function () { GetUUIDNode(node); }
+        },
+        ReplaceOutfit: {
+            label: "Swap outfit",
+            action: function() { SwapOutfit(node, true); }
         }
     };
 
@@ -274,7 +296,10 @@ function InventoryMenu(node) {
         delete items.PlayGesture;
     }
 
-
+    if(IsFolder == false)
+    {
+        delete items.ReplaceOutfit;
+    }
     if (IsPreviewable == false) {
         delete items.PreviewItem;
     }

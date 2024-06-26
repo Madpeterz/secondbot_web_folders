@@ -2,6 +2,11 @@ function getGroupList() {
     postCallBotWithToken("GetGroupList", {}, SetGroupList);
 }
 
+function getGroupListDelayed()
+{
+    setTimeout(getGroupList, 2000);
+}
+
 function getGroupsHaveUnread() {
     postCallBotWithToken("GroupchatAnyUnread", {}, SetGroupchatHaveUnread);
 }
@@ -56,30 +61,39 @@ data-toggle="pill" href="#group-[[GROUPUUID]]" role="tab" aria-controls="v-pills
 aria-selected="true">[[GROUPSHORTNAME]] <span id="groupchat-[[GROUPUUID]]-badge" class="d-none badge badge-danger">#</span></a>
 `
 
+var forceLoadedGroups = false;
 
 function SetGroupList(jsonRaw) {
     if (BasicChecks(jsonRaw, "GroupsList") == true) {
         try {
             jsondata = JSON.parse(jsonRaw);
-            $.each(jsondata, function (i, item) {
-                if (knowngroups.includes(i) == false) {
-                    knowngroups.push(i);
-                    var navitem = groupchatnavitem;
-                    var windowitem = groupchatwindow;
-                    navitem = navitem.replaceAll("[[GROUPUUID]]", i);
-                    windowitem = windowitem.replaceAll("[[GROUPUUID]]", i);
-                    navitem = navitem.replaceAll("[[GROUPNAME]]", item);
-                    windowitem = windowitem.replaceAll("[[GROUPNAME]]", item);
-                    var shortname = item;
-                    if (shortname.length > 15) {
-                        shortname = shortname.substr(0, 15);
+            if((jsondata.length == 0) && (forceLoadedGroups == false))
+            {
+                forceLoadedGroups = true;
+                postCallBotWithToken("ForceLoadGroups", {}, getGroupListDelayed);
+            }
+            else
+            {
+                $.each(jsondata, function (i, item) {
+                    if (knowngroups.includes(i) == false) {
+                        knowngroups.push(i);
+                        var navitem = groupchatnavitem;
+                        var windowitem = groupchatwindow;
+                        navitem = navitem.replaceAll("[[GROUPUUID]]", i);
+                        windowitem = windowitem.replaceAll("[[GROUPUUID]]", i);
+                        navitem = navitem.replaceAll("[[GROUPNAME]]", item);
+                        windowitem = windowitem.replaceAll("[[GROUPNAME]]", item);
+                        var shortname = item;
+                        if (shortname.length > 15) {
+                            shortname = shortname.substr(0, 15);
+                        }
+                        navitem = navitem.replaceAll("[[GROUPSHORTNAME]]", shortname);
+                        $('#v-pills-group-tab').html($("#v-pills-group-tab").html() + navitem);
+                        $('#groups-pills-tabContent').html($("#groups-pills-tabContent").html() + windowitem);
                     }
-                    navitem = navitem.replaceAll("[[GROUPSHORTNAME]]", shortname);
-                    $('#v-pills-group-tab').html($("#v-pills-group-tab").html() + navitem);
-                    $('#groups-pills-tabContent').html($("#groups-pills-tabContent").html() + windowitem);
-                }
-            });
-            reset_events();
+                });
+                reset_events();
+            }
         }
         catch (err) {
             addToErrorReplyLog("grouplist " + err);
