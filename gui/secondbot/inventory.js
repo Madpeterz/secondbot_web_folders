@@ -1,6 +1,53 @@
 
+var useCacheInventory = true;
 function getBotFolders() {
-    postCallBotWithToken("InventoryFolders", {} , SetBotFolders);
+    if(useCacheInventory == true)
+    {
+        addToErrorReplyLog('Loading inventory from cache...');
+        postCallBotWithToken("InventoryPreloadDone", {} , InventoryPreloadDone);
+    }
+    else
+    {
+        addToErrorReplyLog('Loading folder layout from bot [non-cached]...');
+        postCallBotWithToken("InventoryFolders", {} , SetBotFolders);
+    }
+}
+
+function InventoryPreloadFolderCount(jsonRaw)
+{
+    if(jsonRaw.includes("folders:0") == true)
+    {
+        addToErrorReplyLog("Preload done and folder count is zero loading folder layout using non-cached method");
+        useCacheInventory = false;
+        setTimeout(getBotFolders, 3000);
+        return;
+    }
+    addToErrorReplyLog("Preload done and preload size is "+jsonRaw+" - loading from cache");
+    setTimeout(
+        postCallBotWithToken("InventoryContentsCatched", {} , SetBotInventoryCached), 
+        1000
+    );
+    return;
+}
+function InventoryPreloadDone(jsonRaw)
+{
+    if(jsonRaw == "Ready")
+    {
+        addToErrorReplyLog("Preload says its ready - checking folder count...");
+        postCallBotWithToken("InventoryPreloadCount", {} , InventoryPreloadFolderCount);
+        return;
+    }
+    else if(jsonRaw == "Not ready")
+    {
+        addToErrorReplyLog("Preload says its not ready - trying again shortly");
+        setTimeout(getBotFolders, 3000);
+        return;
+    }
+    else
+    {
+        useCacheInventory = false;
+        setTimeout(getBotFolders, 3000);
+    }
 }
 
 
@@ -374,6 +421,179 @@ function unpackInventoryMapFolder(JsonObject, parentid) {
     }
     if (parentid == "#") {
         expandNode(JsonObject.id);
+    }
+}
+
+function fullUnpackInventory(JsonObject, parentid, callback) {
+    addToErrorReplyLog("Rendering inventory...");
+    if (parentid == "#") {
+        RootFolderid = JsonObject.UUID;
+    }
+    
+    // Process inventory recursively with batching to prevent browser blocking
+    function processInventoryRecursive(obj, parentId, batchQueue, callback) {
+        if (!obj || !obj.hasOwnProperty('UUID')) {
+            if (callback) callback();
+            return;
+        }
+        
+        var jstree = $('#jstree').jstree();
+        
+        try {
+            // Create the current node
+            if (obj.InventoryType == "Folder") {
+                jstree.create_node(parentId, { 
+                    "li_attr": { "type": "Folder" }, 
+                    "id": obj.UUID, 
+                    "text": obj.Name 
+                }, "last");
+                // Process children if they exist
+                if (obj.hasOwnProperty('Children') && obj.Children.length > 0) {
+                    // Add children to batch queue
+                    for (var i = 0; i < obj.Children.length; i++) {
+                        batchQueue.push({
+                            object: obj.Children[i],
+                            parentId: obj.UUID
+                        });
+                    }
+                }
+            } else {
+                var typename = obj.InventoryType.replace("Inventory", "");
+                jstree.create_node(parentId, {
+                    "li_attr": { "type": typename },
+                    "id": obj.UUID,
+                    "text": obj.Name,
+                    "icon": "images/tree/" + typename + ".png"
+                }, "last");
+            }
+            
+
+            
+            if (callback) callback();
+        } catch (err) {
+            addToErrorReplyLog("Error processing item: " + obj.UUID + " - " + err);
+            if (callback) callback();
+        }
+    }
+    
+    // Process batch queue with delays
+    function processBatchQueue(batchQueue, batchSize, callback) {
+        if (batchQueue.length === 0) {
+            if (callback) callback();
+            return;
+        }
+        
+        var currentBatch = batchQueue.splice(0, batchSize);
+        var processed = 0;
+        
+        function processNextInBatch() {
+            if (processed >= currentBatch.length) {
+                // Use setTimeout to allow browser to breathe before next batch
+                setTimeout(function() {
+                    processBatchQueue(batchQueue, batchSize, callback);
+                }, 10);
+                return;
+            }
+            
+            var item = currentBatch[processed];
+            processInventoryRecursive(item.object, item.parentId, batchQueue, function() {
+                processed++;
+                processNextInBatch();
+            });
+        }
+        
+        processNextInBatch();
+    }
+    
+    if (JsonObject.hasOwnProperty('UUID') && JsonObject.hasOwnProperty('Name')) {
+        if (JsonObject.hasOwnProperty('InventoryType')) {
+            try {
+                var jstree = $('#jstree').jstree();
+                
+                // Create root folder first
+                if (JsonObject.InventoryType == "Folder") {
+                    jstree.create_node(parentid, { 
+                        "li_attr": { "type": "Folder" }, 
+                        "id": JsonObject.UUID, 
+                        "text": JsonObject.Name 
+                    }, "last");
+                    
+                    // Process children in batches
+                    var batchQueue = [];
+                    if (JsonObject.hasOwnProperty('Children') && JsonObject.Children.length > 0) {
+                        for (var i = 0; i < JsonObject.Children.length; i++) {
+                            batchQueue.push({
+                                object: JsonObject.Children[i],
+                                parentId: JsonObject.UUID
+                            });
+                        }
+                    }
+                    
+                    // Process in batches of 25 items
+                    processBatchQueue(batchQueue, 25, function() {
+                        if (parentid == "#") {
+                            expandNode(JsonObject.UUID);
+                        }
+                        if (callback) callback();
+                    });
+                } else {
+                    var typename = JsonObject.InventoryType.replace("Inventory", "");
+                    jstree.create_node(parentid, {
+                        "li_attr": { "type": typename },
+                        "id": JsonObject.UUID,
+                        "text": JsonObject.Name,
+                        "icon": "images/tree/" + typename + ".png"
+                    }, "last");
+                    
+                    if (parentid == "#") {
+                        expandNode(JsonObject.UUID);
+                    }
+                    if (callback) callback();
+                }
+            } catch (err) {
+                addToErrorReplyLog("Error processing root folder: " + err);
+                if (callback) callback();
+            }
+        }
+    } else {
+        if (callback) callback();
+    }
+}
+
+function SetBotInventoryCached(jsonRaw) 
+{
+    try {
+        jsondata = JSON.parse(jsonRaw);
+        $('#jstree').off('ready.jstree');
+        $('#inventory').html('<div id="jstree">Inventory not loaded</div>');
+        $('#jstree')
+            .jstree({
+                "core": {
+                    "animation": 1,
+                    "check_callback": true,
+                    "themes": { "stripes": true }
+                },
+                "plugins": ["contextmenu"],
+                "contextmenu": {
+                    "items": InventoryMenu
+                }
+            })
+            .on('dblclick.jstree', function (event) {
+                var rawnode = $(event.target).closest("li");
+                node = $('#jstree').jstree(true).get_node(rawnode.attr("id"))
+                if (rawnode.attr("type") == "Folder") {
+                    RefreshFolder(node);
+                }
+            })
+            .on('ready.jstree', function (e, data) {
+                fullUnpackInventory(jsondata, "#", function() {
+                    addToErrorReplyLog('Inventory rendered from cache');
+                });
+            });
+    } catch (err) {
+        addToErrorReplyLog('Failed processing folder reply loading directly');
+        useCacheInventory = false;
+        setTimeout(getBotFolders, 3000);
     }
 }
 
